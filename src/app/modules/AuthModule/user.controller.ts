@@ -17,6 +17,7 @@ const createUser = async (req: Request, res: Response) => {
       message: 'User created successfully!',
       data: result,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     let errorMessage = err.message;
     let errorCode = err.code;
@@ -67,11 +68,15 @@ const getSingleUser = async (req: Request, res: Response) => {
       message: 'User fetched successfully!',
       data: result,
     });
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: 'User fetch failed!',
-      error: err,
+      message: 'User not found!"',
+      error: {
+        code: 404,
+        description: err.message,
+      },
     });
   }
 };
@@ -90,11 +95,15 @@ const updateSingleUser = async (req: Request, res: Response) => {
       message: 'User updated successfully!',
       data: result,
     });
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      message: 'User update failed!',
-      error: err,
+      message: 'User update failed',
+      error: {
+        code: 404,
+        description: err.message,
+      },
     });
   }
 };
@@ -102,14 +111,94 @@ const updateSingleUser = async (req: Request, res: Response) => {
 const deleteUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const result = await UserServices.deleteUserFromDB(Number(userId));
+    //delete user
+    await UserServices.deleteUserFromDB(Number(userId));
     res.status(200).json({
       success: true,
       message: 'User deleted successfully!',
+      data: null,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'User delete failed',
+      error: {
+        code: 404,
+        description: err.message,
+      },
+    });
+  }
+};
+
+const addNewOrder = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { orders } = req.body;
+    await UserServices.addNewProductToOrder(Number(userId), orders);
+    res.status(200).json({
+      success: true,
+      message: 'Order created successfully!',
+      data: null,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Order creation failed!',
+      error: {
+        code: 404,
+        description: err.message,
+      },
+    });
+  }
+};
+
+const getAllOrdersOfSingleUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const result = await UserServices.getAllOrdersOfSingleUserFromDB(
+      Number(userId),
+    );
+    res.status(200).json({
+      success: true,
+      message: 'Order fetched successfully!',
       data: result,
     });
-  } catch (err) {
-    console.log(err);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Orders fetch failed!',
+      error: {
+        code: 404,
+        description: err.message,
+      },
+    });
+  }
+};
+
+const getTotalPriceOfOrders = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const result = await UserServices.calculateSingleUserTotalPriceOfOrders(
+      Number(userId),
+    );
+    res.status(200).json({
+      success: true,
+      message: 'Total price calculated successfully!',
+      data: result,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: {
+        code: 404,
+        description: err.message,
+      },
+    });
   }
 };
 
@@ -119,4 +208,7 @@ export const UserController = {
   getSingleUser,
   updateSingleUser,
   deleteUser,
+  addNewOrder,
+  getAllOrdersOfSingleUser,
+  getTotalPriceOfOrders,
 };

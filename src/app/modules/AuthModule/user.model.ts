@@ -38,10 +38,10 @@ const userSchema = new Schema<TUser, UserModel>({
   hobbies: { type: [String], required: true },
   address: { type: addressSchema, required: true },
   orders: { type: [orderSchema] },
+  isDeleted: { type: Boolean, default: false },
 });
 
 // pre middleware
-
 userSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
@@ -53,15 +53,22 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-//post middleware
-userSchema.post('save', function () {
-  console.log(this);
+userSchema.pre('find', async function (next) {
+  this.find({isDeleted: {$ne: true}});
+  next()
+})
+
+userSchema.pre('findOne', async function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
 });
 
+
+// static methods to check if user exists
 userSchema.statics.isUserExists = async function (userId: number) {
   const existingUser = await User.findOne({ userId });
 
-  return existingUser;
+  return !!existingUser;
 };
 
 userSchema.methods.toJSON = function () {
