@@ -14,7 +14,7 @@ const createUserIntoDB = async (userData: TUser) => {
 const getAllUsersFromDB = async () => {
   const result = await User.find(
     {},
-    { username: 1, fullName: 1, age: 1, email: 1, address: 1 },
+    { username: 1, fullName: 1, age: 1, email: 1, address: 1, _id: 0 },
   );
 
   return result;
@@ -25,7 +25,13 @@ const getSingleUserFromDB = async (id: number) => {
   if (!userExist) {
     throw new Error('User not found!');
   }
-  const result = await User.findOne({ userId: id });
+  const result = await User.findOne(
+    { userId: id },
+    {
+      _id: 0,
+      isDeleted: 0,
+    },
+  );
   return result;
 };
 
@@ -99,7 +105,7 @@ const calculateSingleUserTotalPriceOfOrders = async (userId: number) => {
   ]);
 
   if (result.length === 0) {
-    throw new Error('No orders found for this user') 
+    throw new Error('No orders found for this user');
   }
 
   return result;
