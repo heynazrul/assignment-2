@@ -11,7 +11,10 @@ app.use(cors());
 app.use('/api/users', UserRoutes);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  res.send({
+    success: true,
+    message: 'Server is up and running',
+  })
 });
 
 export default app;
