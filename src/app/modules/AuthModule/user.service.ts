@@ -35,14 +35,19 @@ const getSingleUserFromDB = async (id: number) => {
   return result;
 };
 
-const updateUserIntoDB = async (id: number, user: TUser) => {
+const updateUserIntoDB = async (id: number, userUpdateData: TUser) => {
+  // Validate userUpdate data
+  if (!userUpdateData || Object.keys(userUpdateData).length === 0) {
+    throw new Error('No update data provided');
+  }
   const userExist = await User.isUserExists(id);
   if (!userExist) {
     throw new Error('User not found!');
   }
-  const result = await User.findOneAndUpdate({ userId: id }, user, {
+  const result = await User.findOneAndUpdate({ userId: id }, userUpdateData, {
     new: true,
-  });
+  }).select({ _id: 0, isDeleted: 0, orders: 0 });
+
   return result;
 };
 
