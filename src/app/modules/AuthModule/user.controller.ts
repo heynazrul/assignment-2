@@ -86,11 +86,11 @@ const updateSingleUser = async (req: Request, res: Response) => {
     const { userId } = req.params;
     const userUpdatedData = req.body;
 
-    const userUpdateSchema = userValidationSchema.partial();
-    const zodParsedData = userUpdateSchema.parse(userUpdatedData);
+    // const userUpdateSchema = userValidationSchema.partial();
+    // const zodParsedData = userUpdateSchema.parse(userUpdatedData);
     const result = await UserServices.updateUserIntoDB(
       Number(userId),
-      zodParsedData,
+      userUpdatedData,
     );
     res.status(200).json({
       success: true,
